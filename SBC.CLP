@@ -56,7 +56,7 @@
 		)
 		(defrule masa_2-3cm
 			?tamano_masas <- (tamano_masas ?tamano_masas-read&2-3)
-			?invaden_masas <- (invaden_masas ?invaden_masas-read&3-5)
+			?invaden_masas <- (invaden_masas ?invaden_masas-read&no)
 			=>
 				(retract ?tamano_masas)
 				(retract ?invaden_masas)
@@ -213,15 +213,8 @@
 					(retract ?metastasis)
 					(assert (m M0))
 			)
-		; Determinacion del tratamiento
 	(defrule regla_F
 		"Determinacion del Tratamiento"
 		=>
 		(printout t crlf "Tratamiento Recomendado por el Sistema" crlf "-----------------------------------------------------------------" crlf)
 	)
-		(defrule tratamiento1
-				(t T1A)
-			=>
-				(printout t "Funciona" crlf)
-
-		)
