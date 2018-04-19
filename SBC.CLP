@@ -28,7 +28,8 @@
 	 		?hayPETAC <- (hayPETAC ?hayPETAC-read&no)
          	=>
           (retract ?hayPETAC)
-	       	(printout t "El paciente debe tener realizada una prueba TAC o PET-TAC para poder ser evaluado por el Sistema." crlf)
+	       	(printout t crlf "El paciente debe tener realizada una prueba TAC o PET-TAC para poder ser evaluado por el Sistema." crlf)
+					(assert (t tx))
 		)
 
 (defrule regla_T
@@ -125,7 +126,8 @@
 			?broncoscopia <- (broncoscopia ?broncoscopia-read&no)
 		=>
 			(retract ?broncoscopia)
-			(printout t "El paciente debe tener realizada una broncoscopia para poder ser evaluado por el Sistema." crlf)
+			(printout t crlf "El paciente debe tener realizada una broncoscopia para poder ser evaluado por el Sistema." crlf)
+			(assert (t tx))
 		)
 
 		(defrule regla_N
@@ -299,13 +301,13 @@
 	)
 	(defrule regla_t5
 		"Tis N1 M0, T1A/T1B N1 M0, T2A N1 M0, T2B N0 M0, T2B N1 M0 ó T3 N0 M0, operable y resecable"
-		(or ((t tis) (n n1) (m m0))
-				((t t1A) (n n1) (m m0))
-				((t t1B) (n n1) (m m0))
-				((t t2A) (n n1) (m m0))
-				((t t2B) (n n0) (m m0))
-				((t t2B) (n n1) (m m0))
-				((t t3) (n n0) (m m0))
+		(or (and (t tis) (n n1) (m m0))
+				(and (t t1A) (n n1) (m m0))
+				(and (t t1B) (n n1) (m m0))
+				(and (t t2A) (n n1) (m m0))
+				(and (t t2B) (n n0) (m m0))
+				(and (t t2B) (n n1) (m m0))
+				(and (t t3) (n n0) (m m0))
 		)
 		?operable <- (operable ?operable-read&si)
 		?resecable <- (resecable ?resecable-read&si)
@@ -320,13 +322,13 @@
 	)
 	(defrule regla_t6
 		"Tis N1 M0, T1A/T1B N1 M0, T2A N1 M0, T2B N0 M0, T2B N1 M0 ó T3 N0 M0, operable y no resecable"
-		(or ((t tis) (n n1) (m m0))
-				((t t1A) (n n1) (m m0))
-				((t t1B) (n n1) (m m0))
-				((t t2A) (n n1) (m m0))
-				((t t2B) (n n0) (m m0))
-				((t t2B) (n n1) (m m0))
-				((t t3) (n n0) (m m0))
+		(or (and (t tis) (n n1) (m m0))
+				(and (t t1A) (n n1) (m m0))
+				(and (t t1B) (n n1) (m m0))
+				(and (t t2A) (n n1) (m m0))
+				(and (t t2B) (n n0) (m m0))
+				(and (t t2B) (n n1) (m m0))
+				(and (t t3) (n n0) (m m0))
 		)
 		?operable <- (operable ?operable-read&si)
 		?resecable <- (resecable ?resecable-read&no)
@@ -341,13 +343,13 @@
 	)
 	(defrule regla_t7
 		"Tis N1 M0, T1A/T1B N1 M0, T2A N1 M0, T2B N0 M0, T2B N1 M0 ó T3 N0 M0 y no operable"
-		(or ((t tis) (n n1) (m m0))
-				((t t1A) (n n1) (m m0))
-				((t t1B) (n n1) (m m0))
-				((t t2A) (n n1) (m m0))
-				((t t2B) (n n0) (m m0))
-				((t t2B) (n n1) (m m0))
-				((t t3) (n n0) (m m0))
+		(or (and (t tis) (n n1) (m m0))
+				(and (t t1A) (n n1) (m m0))
+				(and (t t1B) (n n1) (m m0))
+				(and (t t2A) (n n1) (m m0))
+				(and (t t2B) (n n0) (m m0))
+				(and (t t2B) (n n1) (m m0))
+				(and (t t3) (n n0) (m m0))
 		)
 		?operable <- (operable ?operable-read&no)
 		?resecable <- (resecable ?resecable-read&si|no)
@@ -362,9 +364,9 @@
 	)
 	(defrule regla_t8
 		"Tis/T1/T2 N2 M0, T3 N1/N2 M0 ó T4 N0/N1 M0, operable y tanto resecable como no resecable"
-		(or (((or (t tis) ((or (t t1A) (t t1B))) ((or (t t2A) (t t2B))))) (n n2) (m m0))
-				((t t3) ((or (n n1) (n n2))) (m m0))
-				((t t4) ((or (n n0) (n n1))) (m m0))
+		(or (and (or (t tis) (or (t t1A) (t t1B)) (or (t t2A) (t t2B))) (n n2) (m m0))
+				(and (t t3) (or (n n1) (n n2)) (m m0))
+				(and (t t4) (or (n n0) (n n1)) (m m0))
 		)
 		?operable <- (operable ?operable-read&si)
 		?resecable <- (resecable ?resecable-read&si|no)
@@ -379,9 +381,9 @@
 		)
 	(defrule regla_t9
 		"Tis/T1/T2 N2 M0, T3 N1/N2 M0 ó T4 N0/N1 M0 y no operable"
-		(or (((or (t tis) ((or (t t1A) (t t1B))) ((or (t t2A) (t t2B))))) (n n2) (m m0))
-				((t t3) ((or (n n1) (n n2))) (m m0))
-				((t t4) ((or (n n0) (n n1))) (m m0))
+		(or (and (or (t tis) (or (t t1A) (t t1B)) (or (t t2A) (t t2B))) (n n2) (m m0))
+				(and (t t3) (or (n n1) (n n2)) (m m0))
+				(and (t t4) (or (n n0) (n n1)) (m m0))
 		)
 		?operable <- (operable ?operable-read&no)
 		?resecable <- (resecable ?resecable-read&si|no)
@@ -396,8 +398,8 @@
 		)
 	(defrule regla_t10
 		"T4 N2 M0 ó Tis/T1/T2/T3/T4 N3 M0, operable y resecable"
-		(or ((t t4) (n n2) (m m0))
-				(((or (t tis) ((or (t t1A) (t t1B))) ((or (t t2A) (t t2B))) (t t3) (t t4))) (n n3) (m m0))
+		(or (and (t t4) (n n2) (m m0))
+				(and (or (t tis) (or (t t1A) (t t1B)) (or (t t2A) (t t2B)) (t t3) (t t4)) (n n3) (m m0))
 		)
 		?operable <- (operable ?operable-read&si)
 		?resecable <- (resecable ?resecable-read&si)
@@ -412,8 +414,8 @@
 		)
 	(defrule regla_t11
 		"T4 N2 M0 ó Tis/T1/T2/T3/T4 N3 M0, operable y no resecable"
-		(or ((t t4) (n n2) (m m0))
-				(((or (t tis) ((or (t t1A) (t t1B))) ((or (t t2A) (t t2B))) (t t3) (t t4))) (n n3) (m m0))
+		(or (and (t t4) (n n2) (m m0))
+				(and (or (t tis) (or (t t1A) (t t1B)) (or (t t2A) (t t2B)) (t t3) (t t4)) (n n3) (m m0))
 		)
 		?operable <- (operable ?operable-read&si)
 		?resecable <- (resecable ?resecable-read&no)
@@ -428,8 +430,8 @@
 		)
 	(defrule regla_t12
 		"T4 N2 M0 ó Tis/T1/T2/T3/T4 N3 M0 y no operable"
-		(or ((t t4) (n n2) (m m0))
-				(((or (t tis) ((or (t t1A) (t t1B))) ((or (t t2A) (t t2B))) (t t3) (t t4))) (n n3) (m m0))
+		(or (and (t t4) (n n2) (m m0))
+				(and (or (t tis) (or (t t1A) (t t1B)) (or (t t2A) (t t2B)) (t t3) (t t4)) (n n3) (m m0))
 		)
 		?operable <- (operable ?operable-read&no)
 		?resecable <- (resecable ?resecable-read&si|no)
@@ -444,17 +446,23 @@
 	)
 	(defrule regla_t13
 		"Tis/T1/T2/T3/T4 N0/N1/N2/N3 M1"
-		((or (t tis) ((or (t t1A) (t t1B))) ((or (t t2A) (t t2B))) (t t3) (t t4)))
-		((or (n n0) (n n1) (n n2) (n n3))) 
+		(or (t tis) (or (t t1A) (t t1B)) (or (t t2A) (t t2B)) (t t3) (t t4))
+		(or (n n0) (n n1) (n n2) (n n3))
 		(m m1)
-		?operable <- (operable ?operable-read&no)
+		?operable <- (operable ?operable-read&si|no)
 		?resecable <- (resecable ?resecable-read&si|no)
 		=>
 		(retract ?operable)
 		(retract ?resecable)
-		;(retract t)
-		;(retract n)
-		;(retract m)
 		(printout t crlf "El Tratamiento Recomendado por el Sistema es ")
-		(printout t "Quimioterapia y Radioterapia Concomitante o Secuencial." crlf crlf)
+		(printout t "Quimioterapia no Curativa (Tratamiento Paliativo)." crlf crlf)
+	)
+	(defrule regla_err
+		"Regla que se dispara cuando alguna de las variables no se puede determinar"
+		(or (t tx)
+				(n nx)
+		)
+		=>
+		(printout t "El sistema no puede recomendar ningun tratamiento a este paciente." crlf crlf)
+		(exit)
 	)
