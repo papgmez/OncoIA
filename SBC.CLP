@@ -1,5 +1,6 @@
 (defrule regla_inicial
 	"Comprobacion del TAC"
+	(initial-fact)
 	=>
 	(printout t crlf "SISTEMA DE DIAGNÓSTICO, ESTADIFICACIÓN Y TRATAMIENTO DEL CÁNCER DE PULMÓN" crlf "---------------------------------------------------------------------" crlf crlf)
 	(printout t "¿El paciente se ha realizado una Tomografia axial computarizada (TAC)?" crlf)
@@ -52,7 +53,7 @@
 			=>
 				(retract ?tamano_masas)
 				(retract ?invaden_masas)
-				(assert (t T1A))
+				(assert (t t1A))
 		)
 		(defrule masa_2-3cm
 			?tamano_masas <- (tamano_masas ?tamano_masas-read&2-3)
@@ -60,7 +61,7 @@
 			=>
 				(retract ?tamano_masas)
 				(retract ?invaden_masas)
-				(assert (t T1B))
+				(assert (t t1B))
 		)
 		(defrule masa_3-5cm
 			?tamano_masas <- (tamano_masas ?tamano_masas-read&3-5)
@@ -68,7 +69,7 @@
 			=>
 				(retract ?tamano_masas)
 				(retract ?invaden_masas)
-				(assert (t T2A))
+				(assert (t t2A))
 		)
 		(defrule masa_5-7cm
 			?tamano_masas <- (tamano_masas ?tamano_masas-read&5-7)
@@ -76,7 +77,7 @@
 			=>
 				(retract ?tamano_masas)
 				(retract ?invaden_masas)
-				(assert (t T2B))
+				(assert (t t2B))
 		)
 		(defrule masa_7cm
 			?tamano_masas <- (tamano_masas ?tamano_masas-read&>7)
@@ -84,7 +85,7 @@
 			=>
 				(retract ?tamano_masas)
 				(retract ?invaden_masas)
-				(assert (t T3))
+				(assert (t t3))
 		)
 		(defrule masas_invaden
 			?tamano_masas <- (tamano_masas ?tamano_masas-read&<2|2-3|3-5|5-7|>7)
@@ -92,7 +93,7 @@
 			=>
 				(retract ?tamano_masas)
 				(retract ?invaden_masas)
-				(assert (t T4))
+				(assert (t t4))
 		)
 	(defrule no_hay_masas
 		?haymasas <- (haymasas ?haymasas-read&no)
@@ -112,13 +113,13 @@
 				?broncos_posit <- (broncos_posit ?broncos_posit-read&si)
 			=>
 				(retract ?broncos_posit)
-				(assert (t Tis))
+				(assert (t tis))
 			)
 			(defrule broncoscopia_negativa
 				?broncos_posit <- (broncos_posit ?broncos_posit-read&no)
 			=>
 				(retract ?broncos_posit)
-				(assert (t T0))
+				(assert (t t0))
 			)
 		(defrule broncoscopia_no_realizada
 			?broncoscopia <- (broncoscopia ?broncoscopia-read&no)
@@ -162,37 +163,37 @@
 								?tipo_ganglios <- (tipo_ganglios ?tipo_ganglios-read&1)
 								=>
 									(retract ?tipo_ganglios)
-									(assert (n N1))
+									(assert (n n1))
 							)
 							(defrule mediastinicos
 								?tipo_ganglios <- (tipo_ganglios ?tipo_ganglios-read&2)
 								=>
 									(retract ?tipo_ganglios)
-									(assert (n N2))
+									(assert (n n2))
 							)
 							(defrule contralaterales
 								?tipo_ganglios <- (tipo_ganglios ?tipo_ganglios-read&3)
 								=>
 									(retract ?tipo_ganglios)
-									(assert (n N3))
+									(assert (n n3))
 							)
 					(defrule no_hay_tumor
 						?tumor <- (tumor ?tumor-read&no)
 						=>
 							(retract ?tumor)
-							(assert (n N0))
+							(assert (n n0))
 					)
 				(defrule biopsia_no
 					?biopsia <- (biopsia ?biopsia-read&no)
 					=>
 						(retract ?biopsia)
-						(assert (n Nx))
+						(assert (n nx))
 				)
 			(defrule no_hay_ganglios
 				?ganglios <- (ganglios ?ganglios-read&no)
 				=>
 					(retract ?ganglios)
-					(assert (n N0))
+					(assert (n n0))
 			)
 		(defrule regla_M
 			"Determinacion de la presencia de Metastasis"
@@ -205,16 +206,255 @@
 				?metastasis <- (metastasis ?metastasis-read&si)
 				=>
 					(retract ?metastasis)
-					(assert (m M1))
+					(assert (m m1))
 			)
 			(defrule no_hay_metastasis
 				?metastasis <- (metastasis ?metastasis-read&no)
 				=>
 					(retract ?metastasis)
-					(assert (m M0))
+					(assert (m m0))
 			)
-	(defrule regla_F
-		"Determinacion del Tratamiento"
+			(defrule regla_Tratamiento0
+			"Determinacion del Tratamiento del Paciente"
+			=>
+				(printout t crlf "Determinacion del Tratamiento" crlf "-----------------------------------------------------------------" crlf)
+				(printout t "¿El paciente es operable?" crlf)
+				(assert (operable (read)))
+			)
+			(defrule regla_Tratamiento1
+			"Determinacion del Tratamiento del Paciente"
+			=>
+				(printout t "¿El Tumor es Resecable?" crlf)
+				(assert (resecable (read)))
+			)
+	(defrule regla_t1
+		"T1A N0 M0, T1B N0 M0 ó T2A N0 M0, operable y resecable"
+		(or (t t1A)
+				(t t1B)
+				(t t2A))
+		(n n0)
+		(m m0)
+		?operable <- (operable ?operable-read&si)
+		?resecable <- (resecable ?resecable-read&si)
 		=>
-		(printout t crlf "Tratamiento Recomendado por el Sistema" crlf "-----------------------------------------------------------------" crlf)
+		(retract ?operable)
+		(retract ?resecable)
+		;(retract t)
+		;(retract n)
+		;(retract m)
+		(printout t crlf "El Tratamiento Recomendado por el Sistema es ")
+		(printout t "Reseccion del Tumor y Linfadenectomia Parcial." crlf crlf)
+	)
+	(defrule regla_t2
+		"T1A N0 M0, T1B N0 M0 ó T2A N0 M0 y no operable"
+		(or (t t1A)
+				(t t1B)
+				(t t2A))
+		(n n0)
+		(m m0)
+		?operable <- (operable ?operable-read&no)
+		?resecable <- (resecable ?resecable-read&si|no)
+		=>
+		(retract ?operable)
+		(retract ?resecable)
+		;(retract t)
+		;(retract n)
+		;(retract m)
+		(printout t crlf "El Tratamiento Recomendado por el Sistema es ")
+		(printout t "Radioterapia Radical sobre el Tumor y las Cadenas Ganglionares." crlf crlf)
+	)
+	(defrule regla_t3
+		"T1A N0 M0, T1B N0 M0 ó T2A N0 M0, operable y no resecable"
+		(or (t t1A)
+				(t t1B)
+				(t t2A))
+		(n n0)
+		(m m0)
+		?operable <- (operable ?operable-read&si)
+		?resecable <- (resecable ?resecable-read&no)
+		=>
+		(retract ?operable)
+		(retract ?resecable)
+		;(retract t)
+		;(retract n)
+		;(retract m)
+		(printout t crlf "El Tratamiento Recomendado por el Sistema es ")
+		(printout t "Quimioterapia Preoperatoria, Cirugia y Quimioterapia Adyuvante." crlf crlf)
+	)
+	(defrule regla_t4
+		"Tis N0 M0"
+		(t tis)
+		(n n0)
+		(m m0)
+		?operable <- (operable ?operable-read&si|no)
+		?resecable <- (resecable ?resecable-read&si|no)
+		=>
+		(retract ?operable)
+		(retract ?resecable)
+		;(retract t)
+		;(retract n)
+		;(retract m)
+		(printout t crlf "El Tratamiento Recomendado por el Sistema es ")
+		(printout t "Resecion Conservadora." crlf crlf)
+	)
+	(defrule regla_t5
+		"Tis N1 M0, T1A/T1B N1 M0, T2A N1 M0, T2B N0 M0, T2B N1 M0 ó T3 N0 M0, operable y resecable"
+		(or ((t tis) (n n1) (m m0))
+				((t t1A) (n n1) (m m0))
+				((t t1B) (n n1) (m m0))
+				((t t2A) (n n1) (m m0))
+				((t t2B) (n n0) (m m0))
+				((t t2B) (n n1) (m m0))
+				((t t3) (n n0) (m m0))
+		)
+		?operable <- (operable ?operable-read&si)
+		?resecable <- (resecable ?resecable-read&si)
+		=>
+		(retract ?operable)
+		(retract ?resecable)
+		;(retract t)
+		;(retract n)
+		;(retract m)
+		(printout t crlf "El Tratamiento Recomendado por el Sistema es ")
+		(printout t "Reseccion del Tumor, Linfadenectomia y Quimioterapia Adyuvante." crlf crlf)
+	)
+	(defrule regla_t6
+		"Tis N1 M0, T1A/T1B N1 M0, T2A N1 M0, T2B N0 M0, T2B N1 M0 ó T3 N0 M0, operable y no resecable"
+		(or ((t tis) (n n1) (m m0))
+				((t t1A) (n n1) (m m0))
+				((t t1B) (n n1) (m m0))
+				((t t2A) (n n1) (m m0))
+				((t t2B) (n n0) (m m0))
+				((t t2B) (n n1) (m m0))
+				((t t3) (n n0) (m m0))
+		)
+		?operable <- (operable ?operable-read&si)
+		?resecable <- (resecable ?resecable-read&no)
+		=>
+		(retract ?operable)
+		(retract ?resecable)
+		;(retract t)
+		;(retract n)
+		;(retract m)
+		(printout t crlf "El Tratamiento Recomendado por el Sistema es ")
+		(printout t "Quimioterapia preoperatoria, Cirugia y Quimioterapia Adyuvante." crlf crlf)
+	)
+	(defrule regla_t7
+		"Tis N1 M0, T1A/T1B N1 M0, T2A N1 M0, T2B N0 M0, T2B N1 M0 ó T3 N0 M0 y no operable"
+		(or ((t tis) (n n1) (m m0))
+				((t t1A) (n n1) (m m0))
+				((t t1B) (n n1) (m m0))
+				((t t2A) (n n1) (m m0))
+				((t t2B) (n n0) (m m0))
+				((t t2B) (n n1) (m m0))
+				((t t3) (n n0) (m m0))
+		)
+		?operable <- (operable ?operable-read&no)
+		?resecable <- (resecable ?resecable-read&si|no)
+		=>
+		(retract ?operable)
+		(retract ?resecable)
+		;(retract t)
+		;(retract n)
+		;(retract m)
+		(printout t crlf "El Tratamiento Recomendado por el Sistema es ")
+		(printout t "Radioterapia Radical sobre el Tumor y las Cadenas Ganglionares." crlf crlf)
+	)
+	(defrule regla_t8
+		"Tis/T1/T2 N2 M0, T3 N1/N2 M0 ó T4 N0/N1 M0, operable y tanto resecable como no resecable"
+		(or (((or (t tis) ((or (t t1A) (t t1B))) ((or (t t2A) (t t2B))))) (n n2) (m m0))
+				((t t3) ((or (n n1) (n n2))) (m m0))
+				((t t4) ((or (n n0) (n n1))) (m m0))
+		)
+		?operable <- (operable ?operable-read&si)
+		?resecable <- (resecable ?resecable-read&si|no)
+		=>
+		(retract ?operable)
+		(retract ?resecable)
+		;(retract t)
+		;(retract n)
+		;(retract m)
+		(printout t crlf "El Tratamiento Recomendado por el Sistema es ")
+		(printout t "Quimioterapia, Radioterapia y re-estadificar." crlf crlf)
+		)
+	(defrule regla_t9
+		"Tis/T1/T2 N2 M0, T3 N1/N2 M0 ó T4 N0/N1 M0 y no operable"
+		(or (((or (t tis) ((or (t t1A) (t t1B))) ((or (t t2A) (t t2B))))) (n n2) (m m0))
+				((t t3) ((or (n n1) (n n2))) (m m0))
+				((t t4) ((or (n n0) (n n1))) (m m0))
+		)
+		?operable <- (operable ?operable-read&no)
+		?resecable <- (resecable ?resecable-read&si|no)
+		=>
+		(retract ?operable)
+		(retract ?resecable)
+		;(retract t)
+		;(retract n)
+		;(retract m)
+		(printout t crlf "El Tratamiento Recomendado por el Sistema es ")
+		(printout t "Quimioterapia y Radioterapia Concomitante." crlf crlf)
+		)
+	(defrule regla_t10
+		"T4 N2 M0 ó Tis/T1/T2/T3/T4 N3 M0, operable y resecable"
+		(or ((t t4) (n n2) (m m0))
+				(((or (t tis) ((or (t t1A) (t t1B))) ((or (t t2A) (t t2B))) (t t3) (t t4))) (n n3) (m m0))
+		)
+		?operable <- (operable ?operable-read&si)
+		?resecable <- (resecable ?resecable-read&si)
+		=>
+		(retract ?operable)
+		(retract ?resecable)
+		;(retract t)
+		;(retract n)
+		;(retract m)
+		(printout t crlf "El Tratamiento Recomendado por el Sistema es ")
+		(printout t "Quimioterapia y Radioterapia Concomitante o Secuencial." crlf crlf)
+		)
+	(defrule regla_t11
+		"T4 N2 M0 ó Tis/T1/T2/T3/T4 N3 M0, operable y no resecable"
+		(or ((t t4) (n n2) (m m0))
+				(((or (t tis) ((or (t t1A) (t t1B))) ((or (t t2A) (t t2B))) (t t3) (t t4))) (n n3) (m m0))
+		)
+		?operable <- (operable ?operable-read&si)
+		?resecable <- (resecable ?resecable-read&no)
+		=>
+		(retract ?operable)
+		(retract ?resecable)
+		;(retract t)
+		;(retract n)
+		;(retract m)
+		(printout t crlf "El Tratamiento Recomendado por el Sistema es ")
+		(printout t "Pleurodesis y Tratamiento M1." crlf crlf)
+		)
+	(defrule regla_t12
+		"T4 N2 M0 ó Tis/T1/T2/T3/T4 N3 M0 y no operable"
+		(or ((t t4) (n n2) (m m0))
+				(((or (t tis) ((or (t t1A) (t t1B))) ((or (t t2A) (t t2B))) (t t3) (t t4))) (n n3) (m m0))
+		)
+		?operable <- (operable ?operable-read&no)
+		?resecable <- (resecable ?resecable-read&si|no)
+		=>
+		(retract ?operable)
+		(retract ?resecable)
+		;(retract t)
+		;(retract n)
+		;(retract m)
+		(printout t crlf "El Tratamiento Recomendado por el Sistema es ")
+		(printout t "Quimioterapia y Radioterapia Concomitante o Secuencial." crlf crlf)
+	)
+	(defrule regla_t13
+		"Tis/T1/T2/T3/T4 N0/N1/N2/N3 M1"
+		((or (t tis) ((or (t t1A) (t t1B))) ((or (t t2A) (t t2B))) (t t3) (t t4)))
+		((or (n n0) (n n1) (n n2) (n n3))) 
+		(m m1)
+		?operable <- (operable ?operable-read&no)
+		?resecable <- (resecable ?resecable-read&si|no)
+		=>
+		(retract ?operable)
+		(retract ?resecable)
+		;(retract t)
+		;(retract n)
+		;(retract m)
+		(printout t crlf "El Tratamiento Recomendado por el Sistema es ")
+		(printout t "Quimioterapia y Radioterapia Concomitante o Secuencial." crlf crlf)
 	)
